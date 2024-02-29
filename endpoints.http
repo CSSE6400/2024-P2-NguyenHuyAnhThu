@@ -4,7 +4,7 @@
 GET {{baseUrl}}/api/v1/health
 
 ### List All Todos
-GET {{baseUrl}}/api/v1/todos
+GET {{baseUrl}}/api/v1/todos?completed=false
 
 ### Get a specific Todo
 GET {{baseUrl}}/api/v1/todos/1
@@ -14,17 +14,19 @@ POST {{baseUrl}}/api/v1/todos
 Content-Type: application/json
 
 {
+    "id":"1",
     "title": "Test Todo",
     "description": "This is a test todo",
-    "completed": false
+    "completed": true
 }
 
 ### Update a Todo
-PUT {{baseUrl}}/api/v1/todos/1
+PUT {{baseUrl}}/api/v1/todos/10
 Content-Type: application/json
 
 {
-    "title": "updated title"
+    "title": "updated title",
+    "ad":
 }
 
 ### Delete a Todo

@@ -168,7 +168,7 @@ class TestTodo(TodoTest):
         response = self.client.put('/api/v1/todos/1', json=todo)
         self.assertEqual(response.status_code, 404)
 
-    def test_put_item_change_id(self):
+    def test_put_item_change_id(self): #Can't change todo's id
         self._populate_records([TODO_1])
 
         todo = {"id": 2}
