@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request 
 from todo.models import db 
 from todo.models.todo import Todo 
-from datetime import datetime
+from datetime import date, datetime
 from flask import Blueprint, jsonify
  
 api = Blueprint('api', __name__, url_prefix='/api/v1') 
@@ -32,18 +32,21 @@ def health():
 def get_todos(): 
    query = request.args.to_dict(flat=False) #=>>> Get parameters from URL 
    todos = Todo.query.all() 
+   date_format = '%Y-%m-%dT%H:%M:%S'
    result = [] 
    if len(query) == 0:
       for todo in todos: 
          result.append(todo.to_dict()) 
-   else:
-      for todo in todos:
-         for i in list(query.keys()):
-            if len(query[i]) > 1: return jsonify({'error': 'Parameter not valid'}), 400 
-            todo_dict = todo.to_dict()[i]
-            print("tdo_dict:", str(todo_dict).lower())
-            print("query:", ''.join(query[i]))
-            if str(todo_dict).lower() == ''.join(query[i]): result.append(todo.to_dict()) 
+   else: 
+      if "window" in list(query.keys()):
+         for todo in todos:
+            if (datetime.strptime(todo.to_dict()["deadline_at"],date_format) - datetime.now()).days <= int(query["window"][0]): result.append(todo.to_dict())
+      else:
+         for todo in todos:
+            for i in list(query.keys()):
+               if len(query[i]) > 1: return jsonify({'error': 'Parameter not valid'}), 400 
+               todo_dict = todo.to_dict()[i]
+               if str(todo_dict).lower() == ''.join(query[i]): result.append(todo.to_dict()) 
    return jsonify(result)
 
 # @api.route('/todos/<int:todo_id>', methods=['GET'])
@@ -72,8 +75,10 @@ def create_todo():
       description=request.json.get('description'), 
       completed=request.json.get('completed', False), 
    ) 
+   temp = Todo()
    
-   if not set(list(request.get_json().keys())).issubset(list(todo.to_dict().keys())): return jsonify({'error':'Undefined fields'}), 400
+   if not set(list(request.get_json().keys())).issubset(list(temp.to_dict().keys())): return jsonify({'error':'Undefined fields'}), 400
+   if "title" not in list(request.get_json().keys()): return jsonify({'error':'Missing title'}), 400
 
    if 'deadline_at' in request.json: 
       todo.deadline_at = datetime.fromisoformat(request.json.get('deadline_at')) 
